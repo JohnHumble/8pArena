@@ -1,6 +1,7 @@
 // WEAPONS
 var swordImage = new Image();
 
+// TODO add weapons
 
 // PLAYER
 var pRight = new Image();
@@ -57,6 +58,8 @@ function stopPlayer(e) {
     }
 }
 
+// TODO add an attack system
+
 function playerUpdate(){
     if (rightPressed && onGround(player.x + playerSpeed,player.y)){
         player.x += playerSpeed;
@@ -79,3 +82,5 @@ function drawPlayer(){
     }
     ctx.drawImage(pImage,player.x - tileSize/2,player.y-tileSize/2,tileSize,tileSize);
 }
+
+// TODO add enimies
