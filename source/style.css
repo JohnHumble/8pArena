@@ -1,0 +1,15 @@
+* {
+    padding: 0; 
+    marign: 0;
+}
+
+.center {
+    margin: auto;
+    width: 90%;
+    border:20px black;
+}
+
+canvas {
+    background: #ffff97; 
+    display: block; 
+}
