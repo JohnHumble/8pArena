@@ -17,15 +17,15 @@ var cliff2 = new Image();
 cliff2.src = "sprites/cliff2.png";
 var bottomCliff = new Image();
 bottomCliff.src = "sprites/bottomcliff.png";
-var rightCliff = new Image();
-rightCliff.src = "sprites/rightcliff.png";
-var leftCliff = new Image();
-leftCliff.src = "sprites/leftcliff.png";
+var sideCliff = new Image();
+sideCliff.src = "sprites/sidecliff.png";
+
 
 
 // ground array will contain information for the ground
 var ground = [];
 var cliff = [];
+var upperCliff = [];
 
 var tileSize = 64;
 
@@ -79,13 +79,38 @@ function buildCliffs(){
         }
     });
 
-    // fill bottom
+    // fill bottom and sides
     ground.forEach(tile =>{
         let x = tile.x;
         let y = tile.y;
         // check bottom
         if (!isTile(x,y + tileSize,ground)) {
-            addCliff(x,y,"bottom");
+            addUpper(x,y,"bottom");
+            
+            if (!isTile(x,y+tileSize,cliff)){
+                addUpper(x,y+tileSize,"side");
+            }
+        }
+        // check sides
+        if (!isTile(x + tileSize,y,ground) && !isTile(x + tileSize,y,cliff)) {
+            addUpper(x + tileSize,y,"side");
+        }
+        if (!isTile(x - tileSize,y,ground) && !isTile(x - tileSize, y, cliff)) {
+            addUpper(x -tileSize,y,"side");
+        }
+    });
+
+    // fill in cliff sides
+    cliff.forEach(tile =>{
+        let x = tile.x;
+        let y = tile.y;
+
+        // check sides
+        if (!isTile(x + tileSize,y,ground) && !isTile(x + tileSize,y,cliff)) {
+            addUpper(x + tileSize,y,"side");
+        }
+        if (!isTile(x - tileSize,y,ground) && !isTile(x - tileSize, y, cliff)) {
+            addUpper(x -tileSize,y,"side");
         }
     });
 }
@@ -100,9 +125,17 @@ function addCliff(locX,locY,dir){
     }
 }
 
+function addUpper(locX,locY,dir) {
+    upperCliff[upperCliff.length] = {
+        x:locX,
+        y:locY,
+        d:dir
+    }
+}
+
 ground1.onload = function() {
     buildMap(100);
-    drawGround();
+    draw();
 }
 
 var transX = 0;
@@ -126,11 +159,23 @@ function keyDownHandler(e) {
     }
 }
 
-function drawGround(){
+function draw(){
     ctx.setTransform(1,0,0,1,0,0);//reset the transform matrix as it is cumulative
     ctx.clearRect(0, 0, canvas.width, canvas.height);//clear the viewport AFTER the matrix is reset
 
     ctx.translate(transX,transY);
+
+    drawGround();
+    drawCliff();
+
+    // draw entites here
+
+    drawUpper();
+
+    requestAnimationFrame(draw);
+}
+
+function drawGround(){
     ground.forEach(tile => {
         let i = ground4;
         if (tile.type == 1) {
@@ -144,7 +189,9 @@ function drawGround(){
         }
         ctx.drawImage(i,tile.x,tile.y,tileSize,tileSize);
     });
+}
 
+function drawCliff() {
     cliff.forEach(tile => {
         let cimage;
         if (tile.d == "up"){
@@ -153,11 +200,8 @@ function drawGround(){
                 cimage = cliff2;
             }
         }
-        else if (tile.d == "left"){
-            cimage = leftCliff;
-        }
-        else if (tile.d == "right"){
-            cimage = rightCliff;
+        else if (tile.d == "side"){
+            cimage = sideCliff;
         }
         else{
             cimage = bottomCliff;
@@ -165,7 +209,20 @@ function drawGround(){
         ctx.drawImage(cimage,tile.x,tile.y,tileSize,tileSize);
     });
 
-    requestAnimationFrame(drawGround);
+
+}
+
+function drawUpper() {
+    upperCliff.forEach(tile => {
+        let cimage;
+        if (tile.d == "side"){
+            cimage = sideCliff;
+        }
+        else{
+            cimage = bottomCliff;
+        }
+        ctx.drawImage(cimage,tile.x,tile.y,tileSize,tileSize);
+    })
 }
 
 function isTile(x, y,tile){
