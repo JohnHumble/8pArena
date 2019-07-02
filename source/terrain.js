@@ -1,7 +1,3 @@
-var canvas = document.getElementById("gameCanvas");
-var ctx = canvas.getContext("2d");
-ctx.imageSmoothingEnabled = false;
-
 // load images;
 var ground1 = new Image();
 ground1.src = "sprites/ground1.png";
@@ -21,7 +17,6 @@ var sideCliff = new Image();
 sideCliff.src = "sprites/sidecliff.png";
 
 
-
 // ground array will contain information for the ground
 var ground = [];
 var cliff = [];
@@ -30,8 +25,8 @@ var upperCliff = [];
 var tileSize = 64;
 
 function buildMap(size){
-    let x = 320;
-    let y = 320;
+    let x = 0;
+    let y = 0;
     let d = randInt(4);
     let i = 0;
     while(size > 0) {
@@ -133,48 +128,6 @@ function addUpper(locX,locY,dir) {
     }
 }
 
-ground1.onload = function() {
-    buildMap(100);
-    draw();
-}
-
-var transX = 0;
-var transY = 0;
-
-document.addEventListener("keydown", keyDownHandler,false);
-
-function keyDownHandler(e) {
-    let rate = tileSize;
-    if (e.key == "ArrowRight") {
-        transX -= rate;
-    }
-    else if (e.key == "ArrowLeft") {
-        transX += rate;
-    }
-    else if (e.key == "ArrowUp") {
-        transY += rate;
-    }
-    else if (e.key == "ArrowDown") {
-        transY -= rate;
-    }
-}
-
-function draw(){
-    ctx.setTransform(1,0,0,1,0,0);//reset the transform matrix as it is cumulative
-    ctx.clearRect(0, 0, canvas.width, canvas.height);//clear the viewport AFTER the matrix is reset
-
-    ctx.translate(transX,transY);
-
-    drawGround();
-    drawCliff();
-
-    // draw entites here
-
-    drawUpper();
-
-    requestAnimationFrame(draw);
-}
-
 function drawGround(){
     ground.forEach(tile => {
         let i = ground4;
@@ -228,6 +181,16 @@ function drawUpper() {
 function isTile(x, y,tile){
     for (let i = 0; i < tile.length; i++){
         if (tile[i].x == x && tile[i].y == y){
+            return true;
+        }
+    }
+    return false;
+}
+
+function onGround(x,y){
+    for (let i = 0; i < ground.length; i++){
+        let tile = ground[i];
+        if (x >= tile.x && x <= tile.x + tileSize && y >= tile.y && y <= tile.y + tileSize) {
             return true;
         }
     }
