@@ -10,7 +10,7 @@ document.addEventListener("keydown", keyDownHandler,false);
 document.addEventListener("keyup", keyUpHandler,false);
 
 function keyDownHandler(e) {
-    console.log(e);
+   // console.log(e);
     movePlayer(e);
 }
 
@@ -43,7 +43,8 @@ function draw(){
 
 // get things started
 function loadLevel(size){
+    setPlayer();
     buildMap(size);
-    draw();
 }
 loadLevel(100);
+draw();

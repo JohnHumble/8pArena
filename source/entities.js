@@ -1,3 +1,8 @@
+// WEAPONS
+var swordImage = new Image();
+
+
+// PLAYER
 var pRight = new Image();
 pRight.src = "sprites/p1right.png";
 var pLeft = new Image();
@@ -5,10 +10,14 @@ pLeft.src = "sprites/p1left.png";
 
 var playerSpeed = 8;
 
-var player = {
-    x:tileSize/2,
-    y:tileSize/2,
-    d:"right"
+var player = {};
+
+function setPlayer(){
+    player = {
+        x:tileSize/2,
+        y:tileSize/2,
+        d:"right"
+    }
 }
 
 var leftPressed = false;
@@ -19,9 +28,11 @@ var downPressed = false;
 function movePlayer(e) {
     if (e.key == "D" || e.key == "d") {
         rightPressed = true;
+        player.d = "right";
     }
     else if (e.key == "A" || e.key == "a"){
         leftPressed = true;
+        player.d = "left";
     }
     else if (e.key == "W" || e.key == "w"){
         upPressed = true;

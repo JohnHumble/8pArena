@@ -25,6 +25,9 @@ var upperCliff = [];
 var tileSize = 64;
 
 function buildMap(size){
+    ground = [];
+    cliff = [];
+    upperCliff = [];
     let x = 0;
     let y = 0;
     let d = randInt(4);
