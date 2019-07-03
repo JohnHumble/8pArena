@@ -69,7 +69,7 @@ function createSteelSword(){
         y: 0,
         active: false,
         tic:0,
-        cool:16,
+        cool:toHit*2,
         damage:5,
         // textures
         ru: swordSteelR,
@@ -287,9 +287,9 @@ function updateEnimies() {
 
     //TODO make this more elegant
     if (enimies.length <= 0) {
-        alert("level Compleate")
-        buildMap(ground.length * 1.2);
-        placeEnimies(ground.length / 50);
+        alert("level Complete")
+        buildMap(ground.length * 1.5);
+        placeEnimies(ground.length / 20);
         setPlayer();
     }
 }
@@ -331,14 +331,35 @@ function drawEnimies() {
     }
 }
 
+var healthWait = 10;
+var tic = 0;
+var show = true;
 function drawHealth(entity){
     let width = entity.hp / entity.hpMax * tileSize;
     let height = tileSize/4;
+    
     ctx.beginPath();
     ctx.rect(entity.x - tileSize/2,entity.y - tileSize/2 -height,width,height);
     ctx.fillStyle = "#EE2211";
     ctx.fill();
     ctx.closePath();
+    
+    if (entity.hp <= 0) {
+        if (tic <= 0) {
+            tic = healthWait;
+            show = !show;
+        }
+        else {
+            tic--;
+        }
+        if (show){
+            ctx.beginPath();
+            ctx.rect(entity.x - tileSize/2,entity.y - tileSize/2 -height,tileSize,height);
+            ctx.fillStyle = "#EE2211";
+            ctx.fill();
+            ctx.closePath();
+        }
+    }
 }
 
 function testHit(weapon, entity){
