@@ -22,8 +22,8 @@ function drawWeapon(weapon,x, y, tarX, tarY){
     
     let rot = Math.atan2(tarY - y, tarX - x);
 
-    weapon.x = tileSize * Math.cos(rot) + x - tileSize/2;
-    weapon.y = tileSize * Math.sin(rot) + y - tileSize/2;
+    weapon.x = tileSize * Math.cos(rot) + x;
+    weapon.y = tileSize * Math.sin(rot) + y;
     
     let rotOff = -Math.PI/4;
 
@@ -58,7 +58,32 @@ function drawWeapon(weapon,x, y, tarX, tarY){
     ctx.drawImage(image,x + disx + offsetX,y + disy + offsetY,tileSize,tileSize);
 
     if (weapon.active){
-        ctx.drawImage(forceImage,weapon.x, weapon.y,tileSize,tileSize);
+        ctx.drawImage(forceImage,weapon.x - tileSize/2, weapon.y - tileSize/2,tileSize,tileSize);
+    }
+}
+
+function createSteelSword(){
+    return {
+        name: "Steel Sword",
+        x: 0,
+        y: 0,
+        active: false,
+        tic:0,
+        cool:16,
+        damage:5,
+        // textures
+        ru: swordSteelR,
+        lu: swordSteelL,
+        rd: swordSteelRD,
+        ld: swordSteelLD,
+
+        // functions
+        use: function() {
+            if (this.tic <= 0) {
+                this.tic = this.cool;
+                this.active = true;
+            }
+        }
     }
 }
 
@@ -69,7 +94,7 @@ var pLeft = new Image();
 pLeft.src = "sprites/p1left.png";
 
 var playerSpeed = 8;
-var toHit = 10;
+var toHit = 2;
 
 var player = {};
 var targetX = 0;
@@ -81,20 +106,15 @@ function setPlayer() {
         y:tileSize/2,
         d:"right",
 
-        weapon1: {
-            name: "Steel Sword",
-            x: 0,
-            y: 0,
-            active: false,
-            tic:0,
-            damage:5,
-            // textures
-            ru: swordSteelR,
-            lu: swordSteelL,
-            rd: swordSteelRD,
-            ld: swordSteelLD
-        }
+        hp:50,
+        hpMax:50,
+
+        weapon1: createSteelSword()
     }
+    rightPressed = false;
+    leftPressed = false;
+    downPressed = false;
+    upPressed = false;
 }
 
 var leftPressed = false;
@@ -147,7 +167,8 @@ function playerAim(e){
 }
 
 function playerAtck(e) {
-    player.weapon1.active = true;
+    player.weapon1.use();
+
 }
 
 function playerUpdate(){
@@ -166,15 +187,28 @@ function playerUpdate(){
 
     updateWeapon(player.weapon1);
 
+    // check if you get hit
+    enimies.forEach(en => {
+        if (testHit(en.weapon,player)) {
+            player.hp -= en.weapon.damage;
+        }
+    });
+
+    // check if you have no healt
+    // TODO MAKE THIS MORE ELEGANT
+    if (player.hp < 0) {
+        alert("You died!")
+        document.location.reload();
+    }
+
     targetX = screenX - transX;
     targetY = screenY - transY;
 }
 
 function updateWeapon(weapon) {
-    if (weapon.active) {
-        weapon.tic++;
-        if (weapon.tic > toHit) {
-            weapon.tic = 0;
+    if (weapon.tic > 0) {
+        weapon.tic--;
+        if (weapon.tic < weapon.cool - toHit) {
             weapon.active = false;    
         }
     }
@@ -187,6 +221,7 @@ function drawPlayer(){
     }
     ctx.drawImage(pImage,player.x - tileSize/2,player.y-tileSize/2,tileSize,tileSize);
     drawWeapon(player.weapon1,player.x,player.y,targetX, targetY);
+    drawHealth(player);
 }
 
 // TODO add enimies
@@ -202,7 +237,10 @@ function placeEnimies(count) {
         enimies[i] = {
             x:ground[s].x + tileSize/2,
             y:ground[s].y + tileSize/2,
-            hp: 10,
+            hp: 20,
+            hpMax:20,
+            
+            speed:tileSize/24,
 
             tarX:player.x,
             tarY:player.y,
@@ -210,20 +248,9 @@ function placeEnimies(count) {
             // textures
             sprite:skeletonR,
 
-            weapon: {
-                name: "Steel Sword",
-                x: 0,
-                y: 0,
-                active: false,
-                tic:0,
-                damage: 5,
-                // textures
-                ru: swordSteelR,
-                lu: swordSteelL,
-                rd: swordSteelRD,
-                ld: swordSteelLD
-            }
+            weapon: createSteelSword()
         }
+        enimies[i].weapon.cool = 60;
     }
 }
 
@@ -233,13 +260,64 @@ function updateEnimies() {
         en.tarX = player.x;
         en.tarY = player.y;
 
+        // if player is close attack
+        let pdis = getDistance(en.x,en.y,player.x,player.y);
+
+        if (pdis < tileSize*3) {
+            en.weapon.use();
+        }
+
+        if (pdis < tileSize * 10 && pdis > tileSize*1.5) {
+            // move toward the player
+            moveEntity(en,player.x,player.y);
+        }
+
         // test if dead
         if (testHit(player.weapon1,en)) {
+            en.hp -= player.weapon1.damage;
+        }
+        if (en.hp <= 0) {
             enimies.splice(i,1);
             i--;
+            continue;
         }
 
         updateWeapon(en.weapon);
+    }
+
+    //TODO make this more elegant
+    if (enimies.length <= 0) {
+        alert("level Compleate")
+        buildMap(ground.length * 1.2);
+        placeEnimies(ground.length / 50);
+        setPlayer();
+    }
+}
+
+function moveEntity(entity,x,y) {
+    // Simple movement, 
+    let dx = 0;
+    let dy = 0;
+    if (entity.x < x){
+        dx += entity.speed;
+    }
+    else if (entity.x > x) {
+        dx -= entity.speed;
+    }
+
+    if (entity.y < y) {
+        dy += entity.speed;
+    }
+    else if (entity.y > y) {
+        dy -=entity.speed;
+    }
+    //TODO implement some pathfinding algortihm
+
+    if (onGround(entity.x +dx, entity.y)) {
+        entity.x += dx;
+    }
+    if (onGround(entity.x, entity.y + dy)) {
+        entity.y += dy;
     }
 }
 
@@ -249,15 +327,30 @@ function drawEnimies() {
         
         ctx.drawImage(en.sprite,en.x - tileSize/2,en.y-tileSize/2,tileSize,tileSize);
         drawWeapon(en.weapon,en.x,en.y,en.tarX,en.tarY);
+        drawHealth(en);
     }
 }
 
-function testHit(weapon, entitiy){
+function drawHealth(entity){
+    let width = entity.hp / entity.hpMax * tileSize;
+    let height = tileSize/4;
+    ctx.beginPath();
+    ctx.rect(entity.x - tileSize/2,entity.y - tileSize/2 -height,width,height);
+    ctx.fillStyle = "#EE2211";
+    ctx.fill();
+    ctx.closePath();
+}
+
+function testHit(weapon, entity){
     if (weapon.active) {
         // see if the weapon is within tilesize/2
-        let dis = getDistance(weapon.x, weapon.y,entitiy.x,entitiy.y);
+        let dis = getDistance(weapon.x, weapon.y,entity.x,entity.y);
         return dis <= tileSize;
     }
+}
+
+function getDistanceBox(x,y,bx,by, width) {
+    return x >= bx && x <= bx + width && y >= by && y <= by + width
 }
 
 function getDistance(x1,y1, x2,y2) {
