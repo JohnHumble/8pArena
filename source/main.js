@@ -9,6 +9,7 @@ var transY = 0;
 document.addEventListener("keydown", keyDownHandler,false);
 document.addEventListener("keyup", keyUpHandler,false);
 document.addEventListener("mousemove",mouseMoveHandler,false);
+document.addEventListener("click",mouseClickHanadler,false);
 
 function keyDownHandler(e) {
    // console.log(e);
@@ -23,10 +24,15 @@ function mouseMoveHandler(e) {
     playerAim(e);
 }
 
+function mouseClickHanadler(e) {
+    playerAtck(e);
+}
+
 function draw(){
     // update
     playerUpdate();
 
+    // render
     ctx.setTransform(1,0,0,1,0,0);//reset the transform matrix as it is cumulative
     ctx.clearRect(0, 0, canvas.width, canvas.height);//clear the viewport AFTER the matrix is reset
 
@@ -51,5 +57,5 @@ function loadLevel(size){
     setPlayer();
     buildMap(size);
 }
-loadLevel(100);
+loadLevel(300);
 draw();
