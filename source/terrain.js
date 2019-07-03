@@ -165,7 +165,6 @@ function drawCliff() {
         ctx.drawImage(cimage,tile.x,tile.y,tileSize,tileSize);
     });
 
-
 }
 
 function drawUpper() {

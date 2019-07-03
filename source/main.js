@@ -8,6 +8,7 @@ var transY = 0;
 // input control
 document.addEventListener("keydown", keyDownHandler,false);
 document.addEventListener("keyup", keyUpHandler,false);
+document.addEventListener("mousemove",mouseMoveHandler,false);
 
 function keyDownHandler(e) {
    // console.log(e);
@@ -16,6 +17,10 @@ function keyDownHandler(e) {
 
 function keyUpHandler(e) {
     stopPlayer(e);
+}
+
+function mouseMoveHandler(e) {
+    playerAim(e);
 }
 
 function draw(){

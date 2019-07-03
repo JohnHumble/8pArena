@@ -1,7 +1,14 @@
 // WEAPONS
-var swordImage = new Image();
+var swordSteel = new Image();
+swordSteel.src = "sprites/swordsteel.png";
 
+var sword
 // TODO add weapons
+
+function drawWeapon(weapon,x,y){
+    
+    ctx.drawImage(weapon.sprite,targetX - transX,targetY - transY,tileSize,tileSize);
+}
 
 // PLAYER
 var pRight = new Image();
@@ -12,12 +19,20 @@ pLeft.src = "sprites/p1left.png";
 var playerSpeed = 8;
 
 var player = {};
+var targetX = 0;
+var targetY = 0;
 
-function setPlayer(){
+function setPlayer() {
     player = {
         x:tileSize/2,
         y:tileSize/2,
-        d:"right"
+        d:"right",
+
+        weapon1: {
+            name: "Steel Sword",
+            sprite: swordSteel,
+            rot: 0
+        }
     }
 }
 
@@ -58,7 +73,10 @@ function stopPlayer(e) {
     }
 }
 
-// TODO add an attack system
+function playerAim(e){
+    targetX = e.x;
+    targetY = e.y;
+}
 
 function playerUpdate(){
     if (rightPressed && onGround(player.x + playerSpeed,player.y)){
@@ -81,6 +99,7 @@ function drawPlayer(){
         pImage = pLeft;
     }
     ctx.drawImage(pImage,player.x - tileSize/2,player.y-tileSize/2,tileSize,tileSize);
+    drawWeapon(player.weapon1,player.x,player.y + tileSize/4);
 }
 
 // TODO add enimies
