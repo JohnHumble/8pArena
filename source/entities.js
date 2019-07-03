@@ -87,6 +87,7 @@ function setPlayer() {
             y: 0,
             active: false,
             tic:0,
+            damage:5,
             // textures
             ru: swordSteelR,
             lu: swordSteelL,
@@ -163,16 +164,20 @@ function playerUpdate(){
         player.y -= playerSpeed;
     }
 
-    if (player.weapon1.active) {
-        player.weapon1.tic++;
-        if (player.weapon1.tic > toHit) {
-            player.weapon1.tic = 0;
-            player.weapon1.active = false;
-        }
-    }
+    updateWeapon(player.weapon1);
 
     targetX = screenX - transX;
     targetY = screenY - transY;
+}
+
+function updateWeapon(weapon) {
+    if (weapon.active) {
+        weapon.tic++;
+        if (weapon.tic > toHit) {
+            weapon.tic = 0;
+            weapon.active = false;    
+        }
+    }
 }
 
 function drawPlayer(){
@@ -185,3 +190,78 @@ function drawPlayer(){
 }
 
 // TODO add enimies
+var skeletonR = new Image();
+skeletonR.src = "sprites/skeleton.png";
+
+var enimies = [];
+
+function placeEnimies(count) {
+
+    for (let i = 0; i < count; i++) {
+        let s = randInt(ground.length);
+        enimies[i] = {
+            x:ground[s].x + tileSize/2,
+            y:ground[s].y + tileSize/2,
+            hp: 10,
+
+            tarX:player.x,
+            tarY:player.y,
+
+            // textures
+            sprite:skeletonR,
+
+            weapon: {
+                name: "Steel Sword",
+                x: 0,
+                y: 0,
+                active: false,
+                tic:0,
+                damage: 5,
+                // textures
+                ru: swordSteelR,
+                lu: swordSteelL,
+                rd: swordSteelRD,
+                ld: swordSteelLD
+            }
+        }
+    }
+}
+
+function updateEnimies() {
+    for (let i = 0; i < enimies.length; i++) {
+        let en = enimies[i];
+        en.tarX = player.x;
+        en.tarY = player.y;
+
+        // test if dead
+        if (testHit(player.weapon1,en)) {
+            enimies.splice(i,1);
+            i--;
+        }
+
+        updateWeapon(en.weapon);
+    }
+}
+
+function drawEnimies() {
+    for (let i = 0; i < enimies.length; i++) {
+        let en = enimies[i];
+        
+        ctx.drawImage(en.sprite,en.x - tileSize/2,en.y-tileSize/2,tileSize,tileSize);
+        drawWeapon(en.weapon,en.x,en.y,en.tarX,en.tarY);
+    }
+}
+
+function testHit(weapon, entitiy){
+    if (weapon.active) {
+        // see if the weapon is within tilesize/2
+        let dis = getDistance(weapon.x, weapon.y,entitiy.x,entitiy.y);
+        return dis <= tileSize;
+    }
+}
+
+function getDistance(x1,y1, x2,y2) {
+    let disX = x2 - x1;
+    let disY = y2 - y1;
+    return Math.sqrt(disX * disX + disY * disY);
+}

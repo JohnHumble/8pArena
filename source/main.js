@@ -31,6 +31,7 @@ function mouseClickHanadler(e) {
 function draw(){
     // update
     playerUpdate();
+    updateEnimies();
 
     // render
     ctx.setTransform(1,0,0,1,0,0);//reset the transform matrix as it is cumulative
@@ -45,6 +46,7 @@ function draw(){
     drawCliff();
 
     drawPlayer();
+    drawEnimies();
     // draw entites here
 
     drawUpper();
@@ -56,6 +58,7 @@ function draw(){
 function loadLevel(size){
     setPlayer();
     buildMap(size);
+    placeEnimies(size/50);
 }
 loadLevel(300);
 draw();
