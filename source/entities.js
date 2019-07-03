@@ -12,7 +12,7 @@ var swordSteelLD = new Image();
 swordSteelLD.src = "sprites/swordsteelLD.png";
 // TODO add weapons
 
-function drawWeapon(weapon,x, y, tarX, tarY, active){
+function drawWeapon(weapon,x, y, tarX, tarY){
     let offsetX = 0;
     let offsetY = 0;
     let image = weapon.rd;
@@ -22,14 +22,12 @@ function drawWeapon(weapon,x, y, tarX, tarY, active){
     
     let rot = Math.atan2(tarY - y, tarX - x);
 
-    
-    //TODO make this not just the player
-    playerAttack.x = tileSize * Math.cos(rot) + x - tileSize/2;
-    playerAttack.y = tileSize * Math.sin(rot) + y - tileSize/2;
+    weapon.x = tileSize * Math.cos(rot) + x - tileSize/2;
+    weapon.y = tileSize * Math.sin(rot) + y - tileSize/2;
     
     let rotOff = -Math.PI/4;
 
-    if (active){
+    if (weapon.active){
         rotOff = Math.PI/4;
     }
 
@@ -48,8 +46,6 @@ function drawWeapon(weapon,x, y, tarX, tarY, active){
         up = true;
     }
 
-    //TODO make the weapon different if attacking
-
     if (up && left) {
         image = weapon.lu;
     }
@@ -59,13 +55,10 @@ function drawWeapon(weapon,x, y, tarX, tarY, active){
     else if (left) {
         image = weapon.ld;
     }
-
-
-
     ctx.drawImage(image,x + disx + offsetX,y + disy + offsetY,tileSize,tileSize);
 
-    if (active){
-        ctx.drawImage(forceImage,playerAttack.x, playerAttack.y,tileSize,tileSize);
+    if (weapon.active){
+        ctx.drawImage(forceImage,weapon.x, weapon.y,tileSize,tileSize);
     }
 }
 
@@ -81,12 +74,6 @@ var toHit = 10;
 var player = {};
 var targetX = 0;
 var targetY = 0;
-var playerAttack = {
-    x: 0,
-    y: 0,
-    active: false,
-    tic:0
-};
 
 function setPlayer() {
     player = {
@@ -96,6 +83,11 @@ function setPlayer() {
 
         weapon1: {
             name: "Steel Sword",
+            x: 0,
+            y: 0,
+            active: false,
+            tic:0,
+            // textures
             ru: swordSteelR,
             lu: swordSteelL,
             rd: swordSteelRD,
@@ -154,7 +146,7 @@ function playerAim(e){
 }
 
 function playerAtck(e) {
-    playerAttack.active = true;
+    player.weapon1.active = true;
 }
 
 function playerUpdate(){
@@ -171,11 +163,11 @@ function playerUpdate(){
         player.y -= playerSpeed;
     }
 
-    if (playerAttack.active) {
-        playerAttack.tic++;
-        if (playerAttack.tic > toHit) {
-            playerAttack.tic = 0;
-            playerAttack.active = false;
+    if (player.weapon1.active) {
+        player.weapon1.tic++;
+        if (player.weapon1.tic > toHit) {
+            player.weapon1.tic = 0;
+            player.weapon1.active = false;
         }
     }
 
@@ -189,7 +181,7 @@ function drawPlayer(){
         pImage = pLeft;
     }
     ctx.drawImage(pImage,player.x - tileSize/2,player.y-tileSize/2,tileSize,tileSize);
-    drawWeapon(player.weapon1,player.x,player.y,targetX, targetY,playerAttack.active);
+    drawWeapon(player.weapon1,player.x,player.y,targetX, targetY);
 }
 
 // TODO add enimies
