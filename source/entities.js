@@ -25,10 +25,10 @@ function drawWeapon(weapon,x, y, tarX, tarY){
     weapon.x = tileSize * Math.cos(rot) + x;
     weapon.y = tileSize * Math.sin(rot) + y;
     
-    let rotOff = -Math.PI/4;
+    let rotOff = -0;
 
     if (weapon.active){
-        rotOff = Math.PI/4;
+        rotOff = Math.PI/2;
     }
 
     let dis = tileSize/4;
@@ -99,6 +99,7 @@ var toHit = 2;
 var player = {};
 var targetX = 0;
 var targetY = 0;
+var playerTile = {};
 
 function setPlayer() {
     player = {
@@ -171,7 +172,18 @@ function playerAtck(e) {
 
 }
 
+var lastTile = playerTile;
 function playerUpdate(){
+    playerTile = getTile(player.x,player.y);
+
+    // if the tile has changed then update the path
+    if (playerTile != lastTile && playerTile != undefined) {
+        resetPath();
+        findPath(playerTile);
+        lastTile = playerTile;
+   //     console.log(playerTile);
+    }
+
     if (rightPressed && onGround(player.x + playerSpeed,player.y)){
         player.x += playerSpeed;
     }
@@ -269,7 +281,7 @@ function updateEnimies() {
 
         if (pdis < tileSize * 10 && pdis > tileSize*1.5) {
             // move toward the player
-            moveEntity(en,player.x,player.y);
+            moveEntity(en);
         }
 
         // test if dead
@@ -294,24 +306,26 @@ function updateEnimies() {
     }
 }
 
-function moveEntity(entity,x,y) {
+function moveEntity(entity) {
     // Simple movement, 
     let dx = 0;
     let dy = 0;
-    if (entity.x < x){
-        dx += entity.speed;
-    }
-    else if (entity.x > x) {
-        dx -= entity.speed;
-    }
 
-    if (entity.y < y) {
-        dy += entity.speed;
+    let tile = getTile(entity.x,entity.y);
+    let dir = tile.previous;
+
+    if (dir == "right") {
+        dx = entity.speed;
     }
-    else if (entity.y > y) {
-        dy -=entity.speed;
+    else if (dir == "left") {
+        dx = -entity.speed;
     }
-    //TODO implement some pathfinding algortihm
+    else if (dir == "down") {
+        dy = entity.speed;
+    }
+    else if (dir == "up") {
+        dy = -entity.speed;
+    }
 
     if (onGround(entity.x +dx, entity.y)) {
         entity.x += dx;

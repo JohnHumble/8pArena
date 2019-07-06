@@ -54,6 +54,7 @@ function buildMap(size){
         }
     }
 
+    sortBlocks();
     buildCliffs();
 }
 
@@ -63,7 +64,9 @@ function addGround(locX,locY, i){
         x:locX,
         y:locY,
         type:t,
-        index:i
+        index:i,
+        previous:"blank",
+        row:0
     };
 }
 
@@ -144,6 +147,13 @@ function drawGround(){
             i = ground3;
         }
         ctx.drawImage(i,tile.x,tile.y,tileSize,tileSize);
+/* 
+        ctx.font = "25px Arial";
+        ctx.fillStyle = "white";
+        ctx.fillText("i:"+tile.index,tile.x,tile.y+25);
+        ctx.fillStyle = "red";
+        ctx.fillText(tile.previous,tile.x,tile.y + 51);
+        */
     });
 }
 
@@ -190,15 +200,147 @@ function isTile(x, y,tile){
 }
 
 function onGround(x,y){
-    for (let i = 0; i < ground.length; i++){
+
+    return getTile(x,y) != null;
+
+//    for (let i = 0; i < ground.length; i++){
+//        let tile = ground[i];
+//        if (x >= tile.x && x <= tile.x + tileSize && y >= tile.y && y <= tile.y + tileSize) {
+//            return true;
+//        }
+//    }
+//    return false;
+}
+
+function getTile(x,y){
+    // find x first
+    if (ground.length < 1){
+        return null;
+    }
+    // liniarly find the y quardinate
+    for(let i = 0; i < ground.length; i++){
         let tile = ground[i];
-        if (x >= tile.x && x <= tile.x + tileSize && y >= tile.y && y <= tile.y + tileSize) {
-            return true;
+        // test y 
+        if (tile.y + tileSize <= y) {
+            // go to next row
+            i += tile.row; 
+            continue;
+        }
+
+        // see if we match the y
+        if (tile.y + tileSize >= y) {
+            
+            if (isOnGroundTile(tile,x,y)) {
+                return tile;
+            }
+            else {
+                   
+            }
+        
         }
     }
-    return false;
+    return null;
+}
+
+function isOnGroundTile(tile, x, y) {
+    return x >= tile.x && x < tile.x + tileSize && y >= tile.y && y < tile.y + tileSize
 }
 
 function randInt(max){
     return Math.floor(Math.random() * Math.floor(max));
+}
+
+var queue = [];
+function findPath(playerX, playerY) {
+    // get the block that the player is on
+    let tile = getTile(playerX,playerY);
+    
+    findPath(tile);
+}
+
+function findPath(tile) {
+    tile.previous = "c";
+    queue = [];
+
+    // add to the queue
+    queue.push(tile);
+
+    let i = 0;
+    // pop from the queue and add until empty
+    while (i < queue.length) {
+        growQueue(i);
+        i++;
+    }
+}
+
+function growQueue(i){
+    let tile = queue[i];
+    // get 4 adjacent tiles
+    let top = getTile(tile.x,tile.y-tileSize);
+    let bottom = getTile(tile.x,tile.y+tileSize);
+    let left = getTile(tile.x - tileSize,tile.y);
+    let right = getTile(tile.x +tileSize,tile.y);
+    
+    addQueue(top,"down");
+    addQueue(bottom,"up");
+    addQueue(left,"right");
+    addQueue(right,"left");
+}
+
+function addQueue(tile,dir){
+    if (tile != null) {
+        if (tile.previous == "blank") {
+            tile.previous = dir;
+            queue.push(tile);
+        }
+    }
+}
+
+function resetPath(){
+    ground.forEach(tile => {
+        tile.previous = "blank";
+    });
+}
+
+function sortBlocks(){
+    ground.sort(comparitor);
+    
+    // get the row size
+    setRowValues();
+}
+
+function comparitor(a,b){
+    let y = a.y - b.y;
+    if (y === 0){
+        return a.x - b.x;
+    }
+    return y;
+}
+
+function setRowValues() {
+    if (ground.length < 1){
+        return;
+    }
+    ground[0].index = 0;
+    let y = ground[0].y;
+    let start = 0;
+    let end = 0;
+    for (let i = 1; i < ground.length; i++){
+        ground[i].index = i;
+        if (ground[i].y == y) {
+            end++;
+        }
+        else{
+            fillRow(start,end);
+            y = ground[i].y;
+            start = i;
+            end = i;
+        }
+    }
+}
+
+function fillRow(startIndex, endIndex){
+    for (let i = startIndex; i <= endIndex; i++) {
+        ground[i].row = endIndex - i;
+    }
 }
