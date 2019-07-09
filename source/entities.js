@@ -1,3 +1,36 @@
+// SHEILDS
+var sheildImage = new Image();
+sheildImage.src = "sprites/sheild.png";
+
+function drawSheild(sheild, x, y, tarX, tarY) {
+    let offsetX = 0; 
+    let offsetY = 0;
+    let image = sheild.image;
+
+    let rot = Math.atan2(tarY - y, tarX - x);
+
+    if (sheild.active){
+        sheild.x = tileSize/2 * Math.cos(rot) + x;
+        sheild.y = tileSize/2 * Math.sin(rot) + y;
+    }
+    else {
+        sheild.x = -tileSize/3 * Math.cos(rot) + x;
+        sheild.y = -tileSize/3 * Math.sin(rot) + y;
+    }
+
+    ctx.drawImage(image,sheild.x - tileSize/2,sheild.y - tileSize/2,tileSize,tileSize);
+}
+
+function createSteelSheild(){
+    return {
+        name: "Steel Sheild",
+        x: 0,
+        y: 0,
+        active: false,
+        image: sheildImage
+    }
+}
+
 // WEAPONS
 var forceImage = new Image();
 forceImage.src = "sprites/forceRU.png";
@@ -10,7 +43,6 @@ var swordSteelRD = new Image();
 swordSteelRD.src = "sprites/swordsteelRD.png";
 var swordSteelLD = new Image();
 swordSteelLD.src = "sprites/swordsteelLD.png";
-// TODO add weapons
 
 function drawWeapon(weapon,x, y, tarX, tarY){
     let offsetX = 0;
@@ -62,6 +94,7 @@ function drawWeapon(weapon,x, y, tarX, tarY){
     }
 }
 
+// create weapons
 function createSteelSword(){
     return {
         name: "Steel Sword",
@@ -110,7 +143,8 @@ function setPlayer() {
         hp:50,
         hpMax:50,
 
-        weapon1: createSteelSword()
+        weapon1: createSteelSword(),
+        sheild: createSteelSheild()
     }
     rightPressed = false;
     leftPressed = false;
@@ -167,9 +201,16 @@ function playerAim(e){
     }
 }
 
-function playerAtck(e) {
+function playerAtck() {
     player.weapon1.use();
+}
 
+function activateSheild() {
+    player.sheild.active = true;
+}
+
+function sheildDown() {
+    player.sheild.active = false;
 }
 
 var lastTile = playerTile;
@@ -231,8 +272,17 @@ function drawPlayer(){
     if (player.d == "left"){
         pImage = pLeft;
     }
-    ctx.drawImage(pImage,player.x - tileSize/2,player.y-tileSize/2,tileSize,tileSize);
-    drawWeapon(player.weapon1,player.x,player.y,targetX, targetY);
+    if (player.sheild.active){
+        ctx.drawImage(pImage,player.x - tileSize/2,player.y-tileSize/2,tileSize,tileSize);
+        drawWeapon(player.weapon1,player.x,player.y,targetX, targetY);
+        drawSheild(player.sheild,player.x,player.y,targetX,targetY);
+    }
+    else {
+        drawSheild(player.sheild,player.x,player.y,targetX,targetY);
+        ctx.drawImage(pImage,player.x - tileSize/2,player.y-tileSize/2,tileSize,tileSize);
+        drawWeapon(player.weapon1,player.x,player.y,targetX, targetY);    
+    }
+
     drawHealth(player);
 }
 

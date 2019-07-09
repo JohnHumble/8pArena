@@ -9,7 +9,11 @@ var transY = 0;
 document.addEventListener("keydown", keyDownHandler,false);
 document.addEventListener("keyup", keyUpHandler,false);
 document.addEventListener("mousemove",mouseMoveHandler,false);
-document.addEventListener("click",mouseClickHanadler,false);
+document.addEventListener("mousedown",mouseClickHanadler,false);
+//document.addEventListener("contextmenu",mouseRightClickHandler,false);
+document.addEventListener("mouseup",mouseUpEvent,false);
+
+var identify
 
 function keyDownHandler(e) {
    // console.log(e);
@@ -25,7 +29,19 @@ function mouseMoveHandler(e) {
 }
 
 function mouseClickHanadler(e) {
-    playerAtck(e);
+    identify = e;
+    if (e.button == 0){
+        playerAtck();
+    }
+    else if (e.button == 2) {
+        activateSheild();
+    }
+}
+
+function mouseUpEvent(e) {
+    if (e.button == 2) {
+        sheildDown();
+    }
 }
 
 function draw(){
