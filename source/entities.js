@@ -243,7 +243,15 @@ function playerUpdate(){
     // check if you get hit
     enimies.forEach(en => {
         if (testHit(en.weapon,player)) {
-            player.hp -= en.weapon.damage;
+            if (!player.sheild.active){
+                player.hp -= en.weapon.damage;
+            }
+            else {
+                if (!isBetween(player,player.sheild,en,tileSize/4)){
+                    player.hp -= en.weapon.damage;
+                }
+            }
+    
         }
     });
 
@@ -256,6 +264,39 @@ function playerUpdate(){
 
     targetX = screenX - transX;
     targetY = screenY - transY;
+}
+
+function isBetween(i, j, k, radius){
+    /*    
+    let radius = Math.abs(j.x - i.x)/2;
+    let x = ((i.x >= j.x - radius && j.x + radius >= k.x) || (i.x <= j.x + radius && j.x - radius <= k.X));
+    radius = Math.abs(j.y - i.y)/2;
+    let y = ((i.y >= j.y - radius && j.y + radius >= k.y) || (i.y <= j.y + radius && j.y - radius <= k.y));
+    return x && y
+    
+    
+    let x = i.x - k.x;
+    let y = i.y - k.y;
+    
+    let sx = i.x - j.x;
+    let sy = i.y - j.y;
+    
+    console.log("X",x," sX",sx," ",i.x," ",j.x," ",k.x);
+    console.log("Y",y," sY",sy," ",i.y," ",j.y," ",k.y);
+    
+    return (x * sx) >= 0 && (y * sy) >= 0;
+   */
+
+   // trace a rectangle from i to k
+    let x = Math.max(i.x, k.x);
+    let xm = Math.min(i.x, k.x);
+
+    let y = Math.max(i.y,k.y);
+    let ym = Math.min(i.y,k.y);
+
+   // see if j is in it
+
+   return j.x > xm - radius && j.x < x + radius && j.y > ym - radius && j.y < y + radius;
 }
 
 function updateWeapon(weapon) {
@@ -426,11 +467,11 @@ function drawHealth(entity){
     }
 }
 
-function testHit(weapon, entity){
+function testHit(weapon, entity, radius = tileSize){
     if (weapon.active) {
         // see if the weapon is within tilesize/2
         let dis = getDistance(weapon.x, weapon.y,entity.x,entity.y);
-        return dis <= tileSize;
+        return dis <= radius;
     }
 }
 
