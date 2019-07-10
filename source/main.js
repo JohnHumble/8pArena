@@ -67,6 +67,8 @@ function draw(){
 
     drawUpper();
 
+
+    drawCrosshairs();
     requestAnimationFrame(draw);
 }
 

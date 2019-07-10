@@ -126,6 +126,9 @@ pRight.src = "sprites/p1right.png";
 var pLeft = new Image();
 pLeft.src = "sprites/p1left.png";
 
+var crosshairImage = new Image();
+crosshairImage.src = "sprites/crosshiar.png"
+
 var playerSpeed = 8;
 var toHit = 2;
 
@@ -224,18 +227,23 @@ function playerUpdate(){
         lastTile = playerTile;
    //     console.log(playerTile);
     }
+    let speed = playerSpeed;
+
+    if (player.sheild.active){
+        speed /= 2;
+    }
 
     if (rightPressed && onGround(player.x + playerSpeed,player.y)){
-        player.x += playerSpeed;
+        player.x += speed;
     }
     else if (leftPressed && onGround(player.x - playerSpeed,player.y)) {
-        player.x -= playerSpeed;
+        player.x -= speed;
     }
     if (downPressed && onGround(player.x,player.y + playerSpeed)) {
-        player.y += playerSpeed;
+        player.y += speed;
     }
     else if (upPressed && onGround(player.x,player.y - playerSpeed)) {
-        player.y -= playerSpeed;
+        player.y -= speed;
     }
 
     updateWeapon(player.weapon1);
@@ -247,7 +255,7 @@ function playerUpdate(){
                 player.hp -= en.weapon.damage;
             }
             else {
-                if (!isBetween(player,player.sheild,en,tileSize/4)){
+                if (!isBetween(player,player.sheild,en,Math.PI)){
                     player.hp -= en.weapon.damage;
                 }
             }
@@ -266,37 +274,17 @@ function playerUpdate(){
     targetY = screenY - transY;
 }
 
+function drawCrosshairs(){
+    let r = 2 * tileSize /3;
+    ctx.drawImage(crosshairImage,targetX - r/2,targetY - r/2,r,r);
+    
+}
+
 function isBetween(i, j, k, radius){
-    /*    
-    let radius = Math.abs(j.x - i.x)/2;
-    let x = ((i.x >= j.x - radius && j.x + radius >= k.x) || (i.x <= j.x + radius && j.x - radius <= k.X));
-    radius = Math.abs(j.y - i.y)/2;
-    let y = ((i.y >= j.y - radius && j.y + radius >= k.y) || (i.y <= j.y + radius && j.y - radius <= k.y));
-    return x && y
-    
-    
-    let x = i.x - k.x;
-    let y = i.y - k.y;
-    
-    let sx = i.x - j.x;
-    let sy = i.y - j.y;
-    
-    console.log("X",x," sX",sx," ",i.x," ",j.x," ",k.x);
-    console.log("Y",y," sY",sy," ",i.y," ",j.y," ",k.y);
-    
-    return (x * sx) >= 0 && (y * sy) >= 0;
-   */
+    let angleK = Math.atan2(k.y - i.y, k.x - i.x);
+    let angleJ = Math.atan2(j.y - i.y, j.x - i.x);
 
-   // trace a rectangle from i to k
-    let x = Math.max(i.x, k.x);
-    let xm = Math.min(i.x, k.x);
-
-    let y = Math.max(i.y,k.y);
-    let ym = Math.min(i.y,k.y);
-
-   // see if j is in it
-
-   return j.x > xm - radius && j.x < x + radius && j.y > ym - radius && j.y < y + radius;
+    return angleJ >= angleK - radius/2 && angleJ <= angleK + radius/2;
 }
 
 function updateWeapon(weapon) {
@@ -366,7 +354,7 @@ function updateEnimies() {
         // if player is close attack
         let pdis = getDistance(en.x,en.y,player.x,player.y);
 
-        if (pdis < tileSize*3) {
+        if (pdis < tileSize*2) {
             en.weapon.use();
         }
 
