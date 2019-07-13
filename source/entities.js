@@ -205,7 +205,9 @@ function playerAim(e){
 }
 
 function playerAtck() {
-    player.weapon1.use();
+    if (!player.sheild.active) {
+        player.weapon1.use();
+    }
 }
 
 function activateSheild() {

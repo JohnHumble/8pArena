@@ -30,11 +30,11 @@ function mouseMoveHandler(e) {
 
 function mouseClickHanadler(e) {
     identify = e;
-    if (e.button == 0){
-        playerAtck();
-    }
-    else if (e.button == 2) {
+    if (e.button == 2) {
         activateSheild();
+    }
+    else if (e.button == 0){
+        playerAtck();
     }
 }
 
