@@ -16,7 +16,6 @@ bottomCliff.src = "sprites/bottomcliff.png";
 var sideCliff = new Image();
 sideCliff.src = "sprites/sidecliff.png";
 
-
 // ground array will contain information for the ground
 var ground = [];
 var cliff = [];
